@@ -1,11 +1,11 @@
-# Use an official OpenJDK runtime as a base image
-FROM openjdk:17-jdk-slim
-
-# Set working directory
+# Use Maven to build the project
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Copy the JAR file into the container
-COPY target/app-0.0.1-SNAPSHOT.jar app.jar
-
-# Run the jar file
+# Run the app
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 ENTRYPOINT ["java","-jar","/app/app.jar"]
